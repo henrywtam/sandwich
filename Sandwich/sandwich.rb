@@ -9,7 +9,6 @@ class Sandwich
     @name = args[:name]
     @description = args[:description]
     @price = args[:price]
-
   end
 end
 
@@ -40,18 +39,18 @@ class Controller
   end
 
   def display_cart_remove
-    puts "YOUR CART"
+    @view.render("YOUR CART")
     @cart.each do |sandwich|
-      puts "#{sandwich.id} #{sandwich.name} #{sandwich.price}"
+      @view.render("#{sandwich.id} #{sandwich.name} #{sandwich.price}")
     end
   end
 
   def display_cart
-    puts "YOUR CART"
+    @view.render("YOUR CART")
     @cart.each do |sandwich|
-      puts " - #{sandwich.name} #{sandwich.price}"
+      @view.render(" - #{sandwich.name} #{sandwich.price}")
     end
-    p "Total: #{sum}"
+    @view.render("Total: #{sum}")
   end
 
   def sum
@@ -81,9 +80,9 @@ class Controller
   end
 
   def remove_sandwich
-    target = "YOU!"
+    target = ""
     display_cart_remove
-    puts "What number sandwich would you like to remove?"
+    @view.render("What number sandwich would you like to remove?")
     sandwich_id = gets.chomp
     @cart.each do |sandwich|
       if sandwich.id == sandwich_id
@@ -122,32 +121,37 @@ class Controller
     friends = {
     "+16505801483" => "Julian",
     "+17034709608" => "Kevin",
+    ## Store owner will add more customers/friends here
     # # "+16506363688" => "Henry",
     #"+19098019741" => "Ryan"
     }
-    friends.each do |key, value|
-      client.account.messages.create(
-        :from => from,
-        :to => key,
-        :body => @twilio_message
-      )
-      puts "Sent message to #{value}"
+    unless @twilio_message.empty?
+      friends.each do |key, value|
+        client.account.messages.create(
+          :from => from,
+          :to => key,
+          :body => @twilio_message
+        )
+        puts "Sent message to #{value}"
+      end
     end
+    @view.render("You must place a sandwich in your cart") if @twilio_message.empty?
   end
 
   def decision
     choice = gets.chomp.downcase
-    if choice == 'a' || choice == 'add'
+    case choice
+    when 'add'
       add_sandwich
-    elsif choice == 'exit' || choice == 'end'
+    when 'exit','end'
       @exit = true
-    elsif choice == 'm' || choice == 'menu'
+    when 'm','menu'
       display_menu
-    elsif choice == 'r' || choice == 'remove'
+    when 'r','remove'
       remove_sandwich
-    elsif choice == 's' || choice == 'show'
+    when 's','show'
       display_cart
-    elsif choice == 'o' || choice == 'order'
+    when 'o','order'
       place_order
       twilio_message
     end
@@ -173,7 +177,6 @@ class View
     puts "You selected #{sandwich_name}"
     return sandwich_name
   end
-
   def render_options
     puts
     puts '-'*100
@@ -183,6 +186,10 @@ class View
     puts "'Remove' - to remove a sandwich fromt the list"
     puts "'Show' - to show all the sandwiches in the cart"
     puts "'Order' - to place the order"
+    puts "'Exit' - to place the exit"
+  end
+  def render(customized_message)
+    puts "#{customized_message}"
   end
 end
 
