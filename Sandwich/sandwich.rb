@@ -20,11 +20,32 @@ class Controller
       @sandwich_list << Sandwich.new(row)
     end
   end
+
+  def drive
+    
+    display_menu
+    request_order
+    options
+    decision
+  end
+
   def display_menu
     @view.render_menu(sandwich_list)
   end
   def request_order
     @view.render_order(sandwich_list)
+  end
+
+  def options
+    @view.render_options
+  end
+  def decision
+    choice = gets.chomp.downcase
+    if choice == 'add' || choice == 'a'
+      @view.render_menu(sandwich_list)
+      @view.render_order(sandwich_list)
+    end
+
   end
 end
 
@@ -45,10 +66,21 @@ class View
     sandwich_name = sandwich_list[sandwich_order - 1].name
     puts "You selected #{sandwich_name}"
   end
+
+  def render_options
+    puts
+    puts '-'*100
+    puts
+    puts "Enter one of the following commands to perform blsdf"
+    puts "'Add' - to add another sandwich to the list"
+    puts "'Remove' - to remove a sandwich fromt the list"
+    puts "'Show' - to show all the sandwiches in the cart"
+    puts "'Order' - to place the order"
+  end
 end
 
-while
+
 
 menu = Controller.new
-menu.display_menu
-menu.request_order
+menu.drive
+
